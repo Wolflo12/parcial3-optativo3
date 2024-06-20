@@ -1,15 +1,21 @@
-﻿
-using parcial3.Models.Cliente;
+﻿using parcial3.Models.Cliente;
 using parcial3.Models.Factura;
 using parcial3.Models.Sucursal;
+using parcial3.Models.DetalleFactura;
+using parcial3.Models.Producto;
 using parcial3.Services.Cliente;
 using parcial3.Services.Factura;
 using parcial3.Services.Sucursal;
+using parcial3.Services.DetalleFactura;
+using parcial3.Services.Producto;
+using System.Text.RegularExpressions;
 
 string connectionString = "Host=localhost;Username=postgres;Password=bubuchona;Database=postgres;Port=5432";
 ClienteService clienteService = new ClienteService(connectionString);
 FacturaService facturaService = new FacturaService(connectionString);
 SucursalService sucursalService = new SucursalService(connectionString);
+DetalleFacturaService detallefacturaService = new DetalleFacturaService(connectionString);
+ProductoService productoService = new ProductoService(connectionString);
 
 Console.WriteLine("Ingrese: \n a - para insertar \n b - para listar \n c - para borrar \n d - para actualizar");
 string opcion = Console.ReadLine();
@@ -46,6 +52,24 @@ if (opcion == "a")
         Whatsapp = "92348905",
         Mail = "sucursal@gmail.com",
         Estado = "Activo"
+    });
+
+    detallefacturaService.add(new DetalleFacturaModel
+    {
+        cantidad_producto = "20",
+        subtotal = "82234689",
+    });
+
+    productoService.add(new ProductoModel
+    {
+        descripcion = "ni idea",
+        cantidad_minima = "82234689",
+        cantidad_stock = "92348905",
+        precio_compra = "9394",
+        precio_venta = "9823498",
+        categoria = "2",
+        marca = "no se",
+        estado = "bien",
     });
 }
 
@@ -84,11 +108,31 @@ if (opcion == "b")
         $"Estado: {sucursal.Estado} \n "
         )
     );
+
+    detallefacturaService.GetAll().ToList().ForEach(DetalleFactura =>
+    Console.WriteLine(
+        $"cantidad_producto: {DetalleFactura.cantidad_producto} \n " +
+        $"subtotal: { DetalleFactura.subtotal} \n " 
+        )
+    );
+
+    productoService.GetAll().ToList().ForEach(Producto =>
+    Console.WriteLine(
+        $"descripcion: { Producto.descripcion} \n " +
+        $"cantidad_minima: { Producto.cantidad_minima} \n " +
+        $"cantidad_stock: { Producto.cantidad_stock} \n " +
+        $"precio_compra: { Producto.precio_compra} \n " +
+        $"precio_venta: { Producto.precio_venta} \n " +
+        $"categoria: { Producto.categoria} \n " +
+        $"marca: { Producto.marca} \n " +
+        $"estado: { Producto.estado} \n "
+        )
+    );
 }
 
 if (opcion == "c")
 {
-    Console.WriteLine("Ingrese: \n 1 - para borrar cliente \n 2 - para borrar factura \n 3 - para borrar sucursal");
+    Console.WriteLine("Ingrese: \n 1 - para borrar cliente \n 2 - para borrar factura \n 3 - para borrar sucursal \n 4 - para borrar detalle \n 5 - para borrar producto");
     string subopcion = Console.ReadLine();
 
     switch (subopcion)
@@ -108,6 +152,16 @@ if (opcion == "c")
             int sucursalId = int.Parse(Console.ReadLine());
             sucursalService.DeleteByid(sucursalId);
             break;
+        case "4":
+            Console.WriteLine("Ingrese el ID del detalle a borrar:");
+            int detallefacturaId = int.Parse(Console.ReadLine());
+            detallefacturaService.DeleteByid(detallefacturaId);
+            break;
+        case "5":
+            Console.WriteLine("Ingrese el ID del producto a borrar:");
+            int productoId = int.Parse(Console.ReadLine());
+            productoService.DeleteByid(productoId);
+            break;
         default:
             Console.WriteLine("Opción no válida.");
             break;
@@ -116,7 +170,7 @@ if (opcion == "c")
 
 if (opcion == "d")
 {
-    Console.WriteLine("Ingrese: \n 1 - para actualizar cliente \n 2 - para actualizar factura \n 3 - para actualizar sucursal");
+    Console.WriteLine("Ingrese: \n 1 - para actualizar cliente \n 2 - para actualizar factura \n 3 - para actualizar sucursal \n 4 - para actualizar detalle \n 5 - para actualizar producto");
     string subopcion = Console.ReadLine();
 
     switch (subopcion)
@@ -162,14 +216,136 @@ if (opcion == "d")
         case "2":
             Console.WriteLine("Ingrese el ID de la factura a actualizar:");
             int facturaId = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Ingrese el nuevo nrofactura:");
+            string nuevonrofactura = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo fechahora:");
+            string nuevofechahora = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo total:");
+            string nuevototal = Console.ReadLine();
+
+            Console.WriteLine("Ingrese la nueva total_iva5:");
+            string nuevatotal_iva5 = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo total_iva10:");
+            string nuevototal_iva10 = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo total_iva:");
+            string nuevototal_iva = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo total_letras:");
+            string nuevototal_letras = Console.ReadLine();
+
+            FacturaModel facturaActualizado = new FacturaModel
+            {
+                Nro_factura = nuevonrofactura,
+                Fecha_hora = nuevofechahora,
+                Total = nuevototal,
+                Total_iva5 = nuevatotal_iva5,
+                Total_iva10 = nuevototal_iva10,
+                Total_iva = nuevototal_iva,
+                Total_letras = nuevototal_letras,
+            };
+
+            clienteService.update(facturaActualizado);
             break;
         case "3":
             Console.WriteLine("Ingrese el ID de la sucursal a actualizar:");
             int sucursalId = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Ingrese el nuevo descripcion:");
+            string nuevodescripcion = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo direccion:");
+            string nuevodireccion = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo telefono:");
+            string nuevotelefono = Console.ReadLine();
+
+            Console.WriteLine("Ingrese la nueva whatsapp:");
+            string nuevowhatsapp = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo mail:");
+            string nuevomail = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo estado:");
+            string nuevoestado = Console.ReadLine();
+
+            SucursalModel sucursalActualizado = new SucursalModel
+            {
+                Direccion = nuevodireccion,
+                Telefono = nuevotelefono,
+                Whatsapp = nuevowhatsapp,
+                Mail = nuevomail,
+                Estado = nuevoestado
+            };
+
+            sucursalService.update(sucursalActualizado);
+            break;
+        case "4":
+            Console.WriteLine("Ingrese el ID del detalle:");
+            int detalleId = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Ingrese el nuevo cantidad_producto:");
+            string nuevocantidad = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo subtotal:");
+            string nuevosubtotal = Console.ReadLine();
+
+            DetalleFacturaModel detallefacturaActualizado = new DetalleFacturaModel
+            {
+                cantidad_producto = nuevocantidad,
+                subtotal = nuevosubtotal,
+            };
+
+            detallefacturaService.update(detallefacturaActualizado);
+            break;
+        case "5":
+            Console.WriteLine("Ingrese el ID del producto:");
+            int productoId = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Ingrese el nuevo descripcion:");
+            string nuevodescripcion = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo cantidad_minima:");
+            string nuevocantidadm = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo cantidad_stock:");
+            string nuevocantidads = Console.ReadLine();
+
+            Console.WriteLine("Ingrese la nueva compra:");
+            string nuevacompra = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nueva venta:");
+            string nuevaventa = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo categoria:");
+            string nuevocategoria = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo marca:");
+            string nuevomarca = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el nuevo estado:");
+            string nuevoestado = Console.ReadLine();
+
+            ProductoModel productoActualizado = new ProductoModel
+            {
+                descripcion = nuevodescripcion,
+                cantidad_minima = nuevocantidadm,
+                cantidad_stock = nuevocantidads,
+                precio_compra = nuevacompra,
+                precio_venta = nuevaventa,
+                categoria = nuevoCelular,
+                marca = nuevomarca,
+                estado = nuevoestado,
+            };
+
+            productoService.update(productoActualizado);
             break;
         default:
             Console.WriteLine("Opción no válida.");
             break;
     }
 }
-
